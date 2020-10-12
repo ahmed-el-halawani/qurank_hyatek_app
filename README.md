@@ -7,15 +7,15 @@ go to [output application folder](https://github.com/mano1997max/qurank_hyatek_a
 
 
 # packages
-  path_provider: ^1.6.18
-  http: ^0.12.2
-  provider: ^4.3.2+2
-  fluttertoast: ^7.1.1
-  audioplayers: ^0.16.1
-  share: ^0.6.5+2
-  indexed_list_view: ^1.1.5
-  vibration: ^1.7.1
-  sqflite: ^1.3.1+1 
+  path_provider: ^1.6.18  
+  http: ^0.12.2  
+  provider: ^4.3.2+2  
+  fluttertoast: ^7.1.1  
+  audioplayers: ^0.16.1  
+  share: ^0.6.5+2  
+  indexed_list_view: ^1.1.5  
+  vibration: ^1.7.1  
+  sqflite: ^1.3.1+1   
   
 # database
   using local json files that downloaded after open app for the first time
