@@ -1,4 +1,4 @@
-# quran
+# قرأنك حياتك
 
 learn and read el quran
 
