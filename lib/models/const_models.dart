@@ -1,0 +1,1 @@
+enum ShowState { readingOnly, listenAndMore }
