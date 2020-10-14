@@ -21,6 +21,6 @@ go to [quran for android folder](https://github.com/mano1997max/qurank_hyatek_ap
   using local json files that downloaded after open app for the first time
   using sqlflite database to save user data 
 
-# pattern design
+# design pattern 
   mvvm architecture using provider to create view model layer 
   
