@@ -5,6 +5,8 @@
 ## Installation
 go to [quran for android folder](https://github.com/mano1997max/qurank_hyatek_app/tree/master/quran%20for%20android) to download quran.apk
 
+## app video
+[app video on youtube]( https://www.youtube.com/watch?v=_IPue2DU7cA) 
 
 # packages
   path_provider: ^1.6.18  
