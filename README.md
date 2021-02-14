@@ -20,7 +20,7 @@ go to [quran for android folder](https://github.com/mano1997max/qurank_hyatek_ap
   sqflite: ^1.3.1+1   
   
 # database
-  using local json files that downloaded after open app for the first time
+  using local json files that downloaded after open app for the first time  
   using sqlflite database to save user data 
 
 # design pattern 
