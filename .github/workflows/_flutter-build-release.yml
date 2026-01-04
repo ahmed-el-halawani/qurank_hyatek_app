@@ -74,7 +74,7 @@ jobs:
           fi
 
       - name: Build Android APK (Debug)
-        run: flutter build apk --debug
+        run: flutter build apk --debug --ignore-deprecation
 
       - name: Rename APK
         run: |
