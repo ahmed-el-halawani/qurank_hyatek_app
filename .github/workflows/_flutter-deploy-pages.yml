@@ -1,0 +1,46 @@
+name: Deploy Web to GitHub Pages (Reusable)
+
+on:
+  workflow_call:
+    inputs:
+      pages_artifact_name:
+        required: true
+        type: string
+    outputs:
+      page_url:
+        value: ${{ jobs.deploy.outputs.page_url }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      pages: write
+      id-token: write
+      contents: read
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy_pages.outputs.page_url }}
+
+    outputs:
+      page_url: ${{ steps.deploy_pages.outputs.page_url }}
+
+    steps:
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Download site artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.pages_artifact_name }}
+          path: site
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Deploy
+        id: deploy_pages
+        uses: actions/deploy-pages@v4

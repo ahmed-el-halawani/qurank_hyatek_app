@@ -1,0 +1,108 @@
+name: Appetize + README Update (Reusable)
+
+on:
+  workflow_call:
+    inputs:
+      tag_name:
+        required: true
+        type: string
+      apk_name:
+        required: true
+        type: string
+      pages_url:
+        required: true
+        type: string
+      has_rnweb:
+        required: true
+        type: string
+
+jobs:
+  preview_and_readme:
+    runs-on: ubuntu-latest
+    environment: production
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install jq (for Appetize response parsing)
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Download APK from Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release download "${{ inputs.tag_name }}" --pattern "${{ inputs.apk_name }}"
+          ls -la
+          if [ ! -f "${{ inputs.apk_name }}" ]; then
+            echo "APK not found after download: ${{ inputs.apk_name }}"
+            exit 1
+          fi
+
+      - name: Upload APK to Appetize.io
+        id: upload_appetize
+        env:
+          APPETIZE_TOKEN: ${{ secrets.APPETIZE_TOKEN }}
+        run: |
+          APK_PATH="${{ inputs.apk_name }}"
+
+          RESPONSE=$(curl --location --request POST 'https://api.appetize.io/v1/apps' \
+            --user "$APPETIZE_TOKEN:" \
+            --form "file=@$APK_PATH" \
+            --form "platform=android")
+
+          echo "Response: $RESPONSE"
+          PUBLIC_KEY=$(echo "$RESPONSE" | jq -r '.publicKey')
+
+          if [ "$PUBLIC_KEY" = "null" ] || [ -z "$PUBLIC_KEY" ]; then
+            echo "Upload failed."
+            exit 1
+          fi
+
+          echo "public_key=$PUBLIC_KEY" >> $GITHUB_OUTPUT
+          echo "Success! Public Key: $PUBLIC_KEY"
+
+      - name: Update README (Appetize + Web Links)
+        env:
+          PUBLIC_KEY: ${{ steps.upload_appetize.outputs.public_key }}
+          PAGES_URL: ${{ inputs.pages_url }}
+          HAS_RNWEB: ${{ inputs.has_rnweb }}
+        run: |
+          APPETIZE_BLOCK="<a href=\"https://appetize.io/embed/$PUBLIC_KEY?autoplay=true&device=pixel4&scale=75&orientation=portrait&osVersion=11.0\"> <img src=\"https://github.com/user-attachments/assets/dcfe3c5d-ff3b-4b53-94d6-3621aa084fab\" width=\"250\" alt=\"App Preview\"> <br> <img alt=\"Run Live Preview\" src=\"https://img.shields.io/badge/%E2%96%B6-Run%20Live%20Preview-000?style=for-the-badge&logo=android\" /> </a>"
+
+          # Web links
+          FLUTTER_WEB_LINK="$PAGES_URL"
+          RN_WEB_LINK="${PAGES_URL%/}/rn/"
+
+          WEB_BLOCK="<a href=\"$FLUTTER_WEB_LINK\"> <img alt=\"Open Flutter Web\" src=\"https://img.shields.io/badge/%F0%9F%8C%90-Open%20Flutter%20Web-000?style=for-the-badge\" /> </a>"
+
+          if [ "$HAS_RNWEB" = "true" ]; then
+            WEB_BLOCK="$WEB_BLOCK<br/><a href=\"$RN_WEB_LINK\"> <img alt=\"Open RN Web\" src=\"https://img.shields.io/badge/%E2%9A%9B-Open%20RN%20Web-000?style=for-the-badge\" /> </a>"
+          fi
+
+          # Replace blocks (make sure these markers exist in README)
+          sed -i "/<!-- LIVE_PREVIEW_START -->/,/<!-- LIVE_PREVIEW_END -->/c\\
+          <!-- LIVE_PREVIEW_START -->\\
+          $APPETIZE_BLOCK\\
+          <!-- LIVE_PREVIEW_END -->" README.md
+
+          sed -i "/<!-- WEB_PREVIEW_START -->/,/<!-- WEB_PREVIEW_END -->/c\\
+          <!-- WEB_PREVIEW_START -->\\
+          $WEB_BLOCK\\
+          <!-- WEB_PREVIEW_END -->" README.md
+
+      - name: Commit and Push README
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          if git diff --quiet README.md; then
+            echo "No changes to README. Skipping commit."
+          else
+            git add README.md
+            git commit -m "docs: update preview links [skip ci]"
+            git push
+          fi
