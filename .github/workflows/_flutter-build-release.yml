@@ -49,7 +49,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: any
-          flutter-version: "2.10.5"
+          flutter-version: "2.8.0"
           cache: true
       
       - run: flutter --version
