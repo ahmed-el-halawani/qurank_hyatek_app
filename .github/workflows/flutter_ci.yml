@@ -1,0 +1,32 @@
+name: Flutter Release + Previews (Appetize + Web)
+
+on:
+  push:
+    branches: ["main", "master"]
+    paths-ignore:
+      - "README.md"
+
+permissions:
+  contents: write
+
+jobs:
+  build_release:
+    uses: ./.github/workflows/_flutter-build-release.yml
+    secrets: inherit
+
+  deploy_pages:
+    needs: build_release
+    uses: ./.github/workflows/_flutter-deploy-pages.yml
+    secrets: inherit
+    with:
+      pages_artifact_name: ${{ needs.build_release.outputs.pages_artifact_name }}
+
+  preview_and_readme:
+    needs: [build_release, deploy_pages]
+    uses: ./.github/workflows/_flutter-preview-readme.yml
+    secrets: inherit
+    with:
+      tag_name: ${{ needs.build_release.outputs.tag_name }}
+      apk_name: ${{ needs.build_release.outputs.apk_name }}
+      pages_url: ${{ needs.deploy_pages.outputs.page_url }}
+      has_rnweb: ${{ needs.build_release.outputs.has_rnweb }}
