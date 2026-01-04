@@ -46,11 +46,16 @@ jobs:
           java-version: "17"
 
       - name: Set up Flutter
-      - uses: subosito/flutter-action@v2
+        uses: subosito/flutter-action@v2
         with:
+          flutter-version: "2.7.0"   # <- your pinned version
           channel: stable
-          flutter-version: "2.7.0"   # example
           cache: true
+      
+      - name: Print Flutter version
+        run: flutter --version
+
+          
 
       - name: Flutter Pub Get
         run: flutter pub get
