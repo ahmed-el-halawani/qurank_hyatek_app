@@ -49,8 +49,11 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: any
-          flutter-version-file: pubspec.yaml
+          flutter-version: "2.12.0"
           cache: true
+      
+      - run: flutter --version
+
       
       - name: Print Flutter version
         run: flutter --version
