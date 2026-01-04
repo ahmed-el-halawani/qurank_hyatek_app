@@ -6,8 +6,12 @@ on:
     paths-ignore:
       - "README.md"
 
+# IMPORTANT: permissions must be granted here (caller),
+# reusable workflows can't request more than this.
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 jobs:
   build_release:
